@@ -2,34 +2,75 @@
 Simple way to build synthetic data
 """
 
-from kids.cache import hashing
+import random
+
+from collections import defaultdict
 
 
-def get_value(value):
-    return value
-
-
-def build_synthetic_data(num_of_scripts=3, num_of_nodes=3, num_of_knobs=10):
-    import random
-
-    synthetic_data = {}
+def build_synthetic_data(num_of_scripts=3, num_of_nodes=3):
+    estimated_times = []
+    synthetic_data = []
     for script in range(num_of_scripts):
         script_time = 0
-        script_data = {}
+        script_data = defaultdict(list)
         for node in range(num_of_nodes):
-            node_data = {}
-            for knob in range(num_of_knobs):
-                node_value = random.randint(30, 100)
-                node_data['knob%s' % knob] = node_value
-                script_time += get_value(node_value)
-            script_data['node%s' % node] = SimpleNodes(node_data)
-        synthetic_data['script%s' % script] = script_data
-        synthetic_data['duration'] = script_time
-    return synthetic_data
+            node_type = random.choice([SimpleANode, SimpleBNode, SimpleCNode, SimpleDNode])
+            node_object = node_type()
+            script_data[node_object.__class__.__name__].append(node_object)
+            script_time += node_object.value
+        synthetic_data.append(script_data)
+        estimated_times.append(script_time)
+    return synthetic_data, estimated_times
 
 
-@hashing
+# Be sure to update the range in the 'multipliers' list generator variable inside
+# the 'build_synthetic_data' function when adding more SimpleNodes classes
 class SimpleNodes(object):
-    def __init__(self, node_dict):
-        for key, value in node_dict.items():
-            setattr(self, key, value)
+    __multiplier = 1
+    _number_of_knobs = 10
+
+    def __init__(self):
+        self._value = 0
+        self.knobs = {}
+
+        for knob in range(self._number_of_knobs):
+            value = random.randint(30, 100)
+            setattr(self, 'knob%d' % knob, value)
+            self.knobs['knob%d' % knob] = value
+            self._value += value
+
+    @property
+    def value(self):
+        return self._value * self.__multiplier
+
+
+class SimpleANode(SimpleNodes):
+    """
+    Type A of the simple node series
+    """
+    __multiplier = 1
+    _number_of_knobs = 14
+
+
+class SimpleBNode(SimpleNodes):
+    """
+    Type B of the simple node series
+    """
+    __multiplier = 1
+    _number_of_knobs = 27
+
+
+class SimpleCNode(SimpleNodes):
+    """
+    Type C of the simple node series
+    """
+    __multiplier = 1
+    _number_of_knobs = 5
+
+
+class SimpleDNode(SimpleNodes):
+    """
+    Type D of the simple node series
+    """
+    __multiplier = 1
+    _number_of_knobs = 50
