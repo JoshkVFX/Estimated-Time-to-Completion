@@ -3,74 +3,38 @@ Simple way to build synthetic data
 """
 
 import random
-
-from collections import defaultdict
+import pandas as pd
 
 
 def build_synthetic_data(num_of_scripts=3, num_of_nodes=3):
-    estimated_times = []
-    synthetic_data = []
+    all_estimated_times = []
+    all_nodes = []
     for script in range(num_of_scripts):
-        script_time = 0
-        script_data = defaultdict(list)
+        nodes = []
         for node in range(num_of_nodes):
-            node_type = random.choice([SimpleANode, SimpleBNode, SimpleCNode, SimpleDNode])
-            node_object = node_type()
-            script_data[node_object.__class__.__name__].append(node_object)
-            script_time += node_object.value
-        synthetic_data.append(script_data)
-        estimated_times.append(script_time)
-    return synthetic_data, estimated_times
+            # TODO: Add variation to the evaulation time based on a random multiplier
+            # to simulate different types of nodes
+            nodes.append(generate_knobs_and_value())
+        all_estimated_times.append(evaluation_time(nodes))
+        all_nodes.append(nodes)
+    data = {
+        'totalTime': all_estimated_times,
+        'nodes': all_nodes,
+    }
+    return pd.DataFrame(data)
 
 
-# Be sure to update the range in the 'multipliers' list generator variable inside
-# the 'build_synthetic_data' function when adding more SimpleNodes classes
-class SimpleNodes(object):
-    __multiplier = 1
-    _number_of_knobs = 10
-
-    def __init__(self):
-        self._value = 0
-        self.knobs = {}
-
-        for knob in range(self._number_of_knobs):
-            value = random.randint(30, 100)
-            setattr(self, 'knob%d' % knob, value)
-            self.knobs['knob%d' % knob] = value
-            self._value += value
-
-    @property
-    def value(self):
-        return self._value * self.__multiplier
+def evaluation_time(nodes):
+    return sum(sum(x) for x in nodes)
 
 
-class SimpleANode(SimpleNodes):
-    """
-    Type A of the simple node series
-    """
-    __multiplier = 1
-    _number_of_knobs = 14
+def generate_multiplier(multiplier=None):
+    return multiplier or random.choices([1, 15, 7, 12, 3])
 
 
-class SimpleBNode(SimpleNodes):
-    """
-    Type B of the simple node series
-    """
-    __multiplier = 1
-    _number_of_knobs = 27
-
-
-class SimpleCNode(SimpleNodes):
-    """
-    Type C of the simple node series
-    """
-    __multiplier = 1
-    _number_of_knobs = 5
-
-
-class SimpleDNode(SimpleNodes):
-    """
-    Type D of the simple node series
-    """
-    __multiplier = 1
-    _number_of_knobs = 50
+def generate_knobs_and_value(number_of_knobs=None):
+    number_of_knobs = number_of_knobs or random.choice([10, 14, 27, 5, 50])
+    values = []
+    for knob in range(number_of_knobs):
+        values.append(random.randint(30, 100))
+    return values
