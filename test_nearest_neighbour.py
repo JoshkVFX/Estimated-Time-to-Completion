@@ -5,30 +5,46 @@ from sklearn import preprocessing
 from sklearn.linear_model import BayesianRidge
 from sklearn.model_selection import train_test_split
 
-nodes = {'values': [], 'id': [], 'type': []}
-scripts = {'execution_time': [], 'node_ids': []}
+
+NUM_OF_SCRIPTS = 250000
+NODE_TYPES = {'nodeTypeA', 'nodeTypeB', 'nodeTypeC', 'nodeTypeD', 'nodeTypeE', 'nodeTypeF'}
+
+nodes = {'values': [], 'id': [], 'type': [], 'script_id': []}
+scripts = {'execution_time': [], 'id': []}
+
+print('BEGINNING SCRIPT AND NODE GENERATION')
 
 nodeID = 0
-for script in range(100):
+for script_id in range(NUM_OF_SCRIPTS):
     # Generate nodes
     script_execution_time = 0
-    nodeIDs = []
-    for i in range(35):
-        nodeType = random.choice(['nodeTypeA', 'nodeTypeB', 'nodeTypeC', 'nodeTypeD', 'nodeTypeE', 'nodeTypeF'])
-        value = (random.randint(0, 100), random.randint(0, 100), random.randint(0, 100),
-                 random.randint(0, 100), random.randint(0, 100), random.randint(0, 100))
-        nodes['values'].append(value)
-        nodes['id'].append(nodeID)
-        nodes['type'].append(nodeType)
-        script_execution_time += sum([x * 36 for x in value ])
-        nodeIDs.append(nodeID)
-        nodeID += 1
+    for nodeType in NODE_TYPES:
+        for i in range(random.randint(6, 15)):
+            value = (random.randint(0, 100), random.randint(0, 100), random.randint(0, 100),
+                     random.randint(0, 100), random.randint(0, 100), random.randint(0, 100))
+            nodes['values'].append(value)
+            nodes['id'].append(nodeID)
+            nodes['type'].append(nodeType)
+            nodes['script_id'].append(script_id)
+            script_execution_time += sum([x * 8 for x in value])
     scripts['execution_time'].append(script_execution_time)
-    scripts['node_ids'].append(nodeIDs)
+    scripts['id'].append(script_id)
 
 
-allNodes = pd.DataFrame(nodes, columns=['values', 'id', 'type'])
-allScripts = pd.DataFrame(scripts, columns=['execution_time', 'node_ids'])
+print('CONVERTING SCRIPTS AND NODES TO DATAFRAME')
+
+
+allNodes = pd.DataFrame(nodes, columns=['values', 'id', 'type', 'script_id'])
+allScripts = pd.DataFrame(scripts, columns=['execution_time', 'id'])
+allNodes.set_index('id')
+allScripts.set_index('id')
+
+print('FILLING SCRIPT DATAFRAME WITH DEFAULT ZERO VALUES PER SCRIPT')
+
+for name in NODE_TYPES:
+    allScripts[name] = np.zeros(len(allScripts.values))
+
+print('GENERATING NORMALISED INDEX VALUE FOR EACH NODE TYPE')
 
 
 allNodes['normalised_index_value'] = 0
@@ -40,27 +56,32 @@ for nodeType, df in allNodes.groupby('type'):
 
     allNodes.loc[allNodes['type'] == nodeType, 'normalised_index_value'] = x_scaled
 
-node_type_value_per_scripts = []
-execution_times = []
-for execution_time, node_ids in allScripts.values:
-    node_type_value_per_script = []
-    for nodeType, values in allNodes.loc[allNodes['id'].isin(node_ids), ['normalised_index_value', 'type']].groupby('type'):
-        node_type_value_per_script.append(sum(values['normalised_index_value']))
-    execution_times.append(execution_time)
-    node_type_value_per_scripts.append(node_type_value_per_script)
+
+print('BEGINNING REORGANISING OF VALUES INTO LISTS OF NODETYPES FOR EACH SCRIPT')
+
+for (script_id, nodeType), df in allNodes.groupby(['script_id', 'type']):
+    allScripts.at[script_id, nodeType] = sum(df['normalised_index_value'].values)
 
 
-test = pd.DataFrame({'script_node_weights': node_type_value_per_scripts, 'execution_times': execution_times})
+print('SPLIT DATA')
+
+train_data, test_data = train_test_split(allScripts)
 
 
-weights_train_data = test['script_node_weights'][0:80]
-weights_test_data = test['script_node_weights'][81:100]
-execution_train_data = test['execution_times'][0:80]
-execution_test_data = test['execution_times'][81:100]
 model = BayesianRidge()
-model.fit(weights_train_data, execution_train_data)
-prediction = model.predict(weights_test_data)
+print('TRAIN BAYESIAN MODEL BASED ON DATA')
+model.fit(train_data[NODE_TYPES], train_data['execution_time'])
+print('PREDICT OUTCOME OF TEST DATA USING FITTED MODEL')
+prediction = model.predict(test_data[NODE_TYPES])
 print('Prediction:')
 print(prediction)
 print('Execution time:')
-print(execution_test_data)
+print(test_data['execution_time'].values)
+
+errors = []
+for predictedValue, trueValue in zip(prediction, test_data['execution_time']):
+    errors.append(int(trueValue - predictedValue))
+print('Error mean:')
+print(np.mean(errors))
+print('Error average:')
+print(np.average(errors))
