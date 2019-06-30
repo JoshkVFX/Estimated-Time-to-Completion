@@ -1,6 +1,7 @@
 import pandas as pd
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.linear_model import BayesianRidge
 from sklearn.model_selection import train_test_split
@@ -85,3 +86,7 @@ print('Error mean:')
 print(np.mean(errors))
 print('Error average:')
 print(np.average(errors))
+
+
+plt.scatter(prediction, test_data['execution_time'])
+plt.show()
