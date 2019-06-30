@@ -86,6 +86,11 @@ print('Error mean:')
 print(np.mean(errors))
 print('Error average:')
 print(np.average(errors))
+print('Error standard deviation:')
+std = np.std(errors)
+print(std)
+print('Error standard deviation percentage:')
+print(std / max(test_data['execution_time']) * 100)
 
 
 plt.scatter(prediction, test_data['execution_time'])
