@@ -7,7 +7,7 @@ from sklearn.linear_model import BayesianRidge
 from sklearn.model_selection import train_test_split
 
 
-NUM_OF_SCRIPTS = 250000
+NUM_OF_SCRIPTS = 100000
 NODE_TYPES = {'nodeTypeA', 'nodeTypeB', 'nodeTypeC', 'nodeTypeD', 'nodeTypeE', 'nodeTypeF'}
 
 nodes = {'values': [], 'id': [], 'type': [], 'script_id': []}
@@ -21,13 +21,13 @@ for script_id in range(NUM_OF_SCRIPTS):
     script_execution_time = 0
     for nodeType in NODE_TYPES:
         for i in range(random.randint(6, 15)):
-            value = (random.randint(0, 100), random.randint(0, 100), random.randint(0, 100),
-                     random.randint(0, 100), random.randint(0, 100), random.randint(0, 100))
+            value = (random.random(), random.random(), random.random(),
+                     random.random(), random.random(), random.random())
             nodes['values'].append(value)
             nodes['id'].append(nodeID)
             nodes['type'].append(nodeType)
             nodes['script_id'].append(script_id)
-            script_execution_time += sum([x * 8 for x in value])
+            script_execution_time += sum([x * 13 for x in value])
     scripts['execution_time'].append(script_execution_time)
     scripts['id'].append(script_id)
 
@@ -86,6 +86,8 @@ print('Error mean:')
 print(np.mean(errors))
 print('Error average:')
 print(np.average(errors))
+print('Min/Max error:')
+print('%s/%s' % (np.min(errors), np.max(errors)))
 print('Error standard deviation:')
 std = np.std(errors)
 print(std)
