@@ -70,7 +70,7 @@ train_data, test_data = train_test_split(allScripts)
 
 
 model = BayesianRidge()
-print('TRAIN BAYESIAN MODEL BASED ON DATA')
+print('TRAIN MODEL BASED ON DATA')
 model.fit(train_data[NODE_TYPES], train_data['execution_time'])
 print('PREDICT OUTCOME OF TEST DATA USING FITTED MODEL')
 prediction = model.predict(test_data[NODE_TYPES])
