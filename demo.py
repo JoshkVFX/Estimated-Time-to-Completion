@@ -83,7 +83,7 @@ def main(num_of_scripts, num_of_nodes, node_types):
     print('Execution time:')
     print(test_data['execution_time'].values)
 
-    mean, average, minimum, maximum, std, std_percentage = model.evaluate_error_from_last_prediction(
+    errors, mean, average, minimum, maximum, std, std_percentage = model.evaluate_error_from_last_prediction(
         test_data['execution_time'])
     print('Error mean:')
     print(mean)
@@ -97,6 +97,9 @@ def main(num_of_scripts, num_of_nodes, node_types):
     print(std_percentage)
 
     plt.scatter(prediction, test_data['execution_time'])
+    plt.show()
+
+    plt.hist(errors, color='red')
     plt.show()
 
 

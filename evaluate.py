@@ -30,4 +30,4 @@ class EvaluationModel(object):
         maximum = np.max(errors)
         std = np.std(errors)
         std_percentage = std / np.max(expected_results) * 100
-        return mean, average, minimum, maximum, std, std_percentage
+        return errors, mean, average, minimum, maximum, std, std_percentage
