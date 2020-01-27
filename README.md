@@ -28,6 +28,6 @@ Demo.py accepts three arguments:
 ### Interpolator
 
 1. `model = EvaluationModel(model=BayesianRidge)` Initialise the EvaluationModel, providing your preferred Algorithm
-2. `model.fit(scripts_with_known_render_times, execution_times)` # Fit the parsed script data to the execution time data
-3. `prediction = model.predict(scripts_with_unknown_execution_times)` Make a prediction on scripts where we don't have the render time
+2. `model.fit(scripts_with_known_render_times, execution_times)` Fit the parsed script data to the execution time data
+3. `prediction = model.predict(scripts_with_unknown_execution_times)` Make a prediction on scripts where we don't know the execution time already
 4. Save out your trained model for future use
