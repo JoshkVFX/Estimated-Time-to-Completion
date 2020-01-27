@@ -15,9 +15,9 @@ def argumentParser():
     parser.add_argument('-n', '--nodes', nargs='?', type=int, dest='num_nodes',
                         help='Number of synthetic nodes each script should have.\n'
                              'If not passed a random value between 50 and 100 will be chosen')
-    parser.add_argument('-s', '--scripts', nargs='?', default=15000, type=int, dest='num_scripts',
+    parser.add_argument('-s', '--scripts', nargs='?', default=10000, type=int, dest='num_scripts',
                         help='Number of synthetic scripts to generate for the synthetic dataset.\n'
-                             'Default: 100000')
+                             'Default: 10000')
     parser.add_argument('-t', '--types', nargs='*', action='append', dest='node_types',
                         default=['nodeTypeA', 'nodeTypeB', 'nodeTypeC', 'nodeTypeD', 'nodeTypeE', 'nodeTypeF'],
                         help='Number of synthetic node types to pass into the synthetic data generator')
@@ -32,7 +32,7 @@ def build_synthetic_data(num_of_scripts, num_of_nodes, node_types):
         # Generate nodes
         script_execution_time = 0
         for node_type in node_types:
-            for i in range(num_of_nodes or random.randint(6, 300)):
+            for i in range(num_of_nodes or random.randint(10, 100)):
                 value = (random.random(), random.random(), random.random(),
                          random.random(), random.random(), random.random())
                 nodes['values'].append(value)
