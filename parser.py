@@ -40,3 +40,27 @@ class Script(object):
 # Initialise Subclass using the Initialised Storage Object
 # Feed subclass.parse into subclass.write
 # Repeat for all scripts
+
+class HoudiniScript(object):
+    def __init__(self, script, storage, nodes=None):
+        self._nodes = nodes or []
+        self._script = script
+        self._storage = storage
+
+    @abstractmethod
+    def parse(self):
+        if not self._nodes:
+            self._nodes = root.allSubChildren()
+
+        all_node_data = {}
+        for node in self._nodes:
+            node_data = {}
+            for p in node.parms():
+                node_data[p.name()] = p.evalAsString()
+            all_node_data[node.name()] = node_data
+        return all_node_data
+
+    def write(self):
+        self._storage.write(
+            json.dumps(self._nodes)
+        )
