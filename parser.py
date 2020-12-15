@@ -18,10 +18,11 @@ class FileStorage(Storage):
 
 
 class Script(object):
-    def __init__(self, script, storage, nodes=None):
+    def __init__(self, script, storage, nodes=None, json_indent=4):
         self._nodes = nodes or []
         self._script = script
         self._storage = storage
+        self._json_indent = json_indent
 
     @abstractmethod
     def parse(self):
@@ -30,7 +31,7 @@ class Script(object):
 
     def write(self):
         self._storage.write(
-            json.dumps(self._nodes)
+            json.dumps(self._nodes, indent=self._json_indent)
         )
 
 
